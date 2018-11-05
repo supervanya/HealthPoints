@@ -6,16 +6,35 @@
 # Import statements
 import os
 from flask import Flask, render_template, session, redirect, url_for, flash, request
+from flask_script import Manager, Shell
 from flask_wtf import FlaskForm
-from wtforms import StringField # Note that you may need to import more here! Check out examples that do what you want to figure out what.
+from wtforms import StringField, SubmitField # Note that you may need to import more here! Check out examples that do what you want to figure out what.
 from wtforms.validators import Required # Here, too
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate, MigrateCommand
+from pprint     import pprint
+
+# my own modules
+from cache import *
+import maps  
+
 
 ## App setup code
 app = Flask(__name__)
 app.debug = True
 
 ## All app.config values
+app.config['SECRET_KEY'] = 'hardtoguessstringfromsi364'
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://localhost/midterm_test"
+app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Set up Flask debug stuff
+manager = Manager(app)
+db = SQLAlchemy(app) # For database use
+
+migrate = Migrate(app, db)
+manager.add_command('db', MigrateCommand)
 
 
 ## Statements for db setup (and manager setup if using Manager)
@@ -25,9 +44,154 @@ db = SQLAlchemy(app)
 ######################################
 ######## HELPER FXNS (If any) ########
 ######################################
+DATAGOV_APIKEY = 'DEMO_KEY'
+DEBUG = False # this is for debuggin the nutrition data
+
+def fetch_ndbnos_list(search_term, offset=0):
+    base_url = "https://api.nal.usda.gov/ndb/search/"
+    p = {
+        "format":"json",
+        "q":search_term,
+        "sort":"r",
+        "max":11,           # return first 11 results
+                            # lets paging possible
+
+        "offset":offset,    # this will return starting at a certain number, 
+                            # helpful if user wants to see more
+        "ds":"Standard Reference", # or use 'Branded Food Products'
+        "api_key":DATAGOV_APIKEY
+    }
+
+    # making a request with caching to the USDA
+    json_data = cached_reqest(base_url,params = p)
+
+    ndbnos_list = None
+    try: 
+        ndbnos_list = json_data['list']['item']
+        return ndbnos_list
+    except: 
+        return None
+def fetch_nutrition(ndbno):
+    '''
+    DESCR:     gets nutrition data about given food item
+               ndbno numbers can be recieved from fetch_ndbno_list
+    RETURN:    dictionary with food item nutrition (id is key)
+               data = {
+                    "203": {'name':' ', 'unit': 'None', 'value':0},
+                    "204": {'name':' ', 'unit': 'None', 'value':0},
+                    ...
+                    "name":         "",
+                    "kcal":         0,
+                    "ndbno":        0,
+                    "health_index": 0
+               }
+               see maps.py for complete documentation
+    REQUIRES:  ndbno of food
+    MODIFIES:  nothing
+    '''
+
+    # URL: https://ndb.nal.usda.gov/ndb/doc/apilist/API-FOOD-REPORTV2.md
+    # PARAMETERS:
+    #   api_key   y   n/a         Must be a data.gov registered API key
+    #   ndbno     y   n/a         A list of up to 50 NDB numbers
+    #   type      n   b(basic)    Report type: [b]asic or [f]ull or [s]tats
+    #   format1   n   JSON        Report format: xml or json
+
+    # TODO, switch 'type' to f if needed full report
+    base_url = "https://api.nal.usda.gov/ndb/V2/reports"
+    p = {
+        "format":"json",
+        "ndbno": ndbno,
+        "type":"b",
+        "api_key":DATAGOV_APIKEY
+    }
+    
+    json_data = cached_reqest(base_url,params = p)
+
+    # blank dictonary to hold values of interest
+    data = maps.blank_nutri_map
+
+    # saving nutri name and ndbno into the dict
+    data['name']= json_data['foods'][0]['food']['desc']['name']
+    data['kcal']= float(json_data['foods'][0]['food']['nutrients'][1]['value'])
+    data['ndbno']= ndbno
+
+    # extracting the values from the JSON data
+    for nutrient in json_data['foods'][0]['food']['nutrients']:
+        nutrient_id    = int(nutrient['nutrient_id'])
+        data[nutrient_id] = {
+            "name": nutrient['name'],
+            "unit": nutrient['unit'],
+            "value": float(nutrient['value']),
+            # TODO: this one is measures for common serving, not needed yet
+            # implement it if you'd like to give people calculating options
+            # "measures": nutrient['measures']
+        }
 
 
+    # for debugging purposes
+    if DEBUG == True:
+      pprint(data)
 
+    return data
+def get_nutri_index(data):
+    # DESCR:    calculates health index of a food item
+    #           data can be recieved from fetch_nutrition
+    # RETURN:   health index value
+    # REQUIRES: nutrition data dictionary
+    # MODIFIES: nothing
+
+    # extracting necessary data for calculating HLTH_IDX
+    pprint(data)
+    name    = data['name']
+    kcal    = data[208]['value'] if data[208]['value'] else 1
+    vit_c   = data[401]['value']
+    vit_a   = data[318]['value']
+    vit_k   = data[430]['value']
+    vit_d   = data[324]['value']
+
+    # for conveniece aliasing the map as d
+    d = maps.RNP 
+    protein     = data[ d['Protein'               ] ]['value']
+    carbs       = data[ d['Carbs'                 ] ]['value']
+    fats        = data[ d['Fats'                  ] ]['value']
+    fiber       = data[ d['Fiber'                 ] ]['value']
+    sugars      = data[ d['Sugars'                ] ]['value']
+    cholesterol = data[ d['Cholesterol'           ] ]['value']
+    sodium      = data[ d['Sodium'                ] ]['value']
+    sat_f       = data[ d['Saturated Fat'         ] ]['value']
+    trans_f     = data[ d['Trans Fat'             ] ]['value']
+    pol_f       = data[ d['Polyunsaturated Fat'   ] ]['value']
+    mon_f       = data[ d['Monounsaturated Fat'   ] ]['value']
+
+
+    # GOOD STUFF
+    good_fats       = (pol_f*8 + mon_f*4)
+    good_vitamins   = (vit_k/7 + vit_a/800 + vit_c + vit_d)
+    good_protein    = protein*4
+
+    # BAD STUFF
+    bad_fats        = (sat_f*16 + trans_f*400)
+    bad_sodium      = sodium
+    bad_sugar       = (sugars*15 - fiber*150)
+    bad_cholesterol = (cholesterol*7)
+
+
+    # my proprietary formula for calculating HLTH IDX
+    hlth_idx = (kcal 
+        + good_fats 
+        + good_vitamins
+        + good_protein
+        - bad_fats
+        - bad_sodium 
+        - bad_sugar
+        - bad_cholesterol)/kcal/2
+
+    # baseline - Water's IDX = 0 %
+    hlth_idx_water  = 0
+
+    # returning the health index in percent
+    return hlth_idx * 100
 
 ##################
 ##### MODELS #####
@@ -51,18 +215,26 @@ class NameForm(FlaskForm):
     name = StringField("Please enter your name.",validators=[Required()])
     submit = SubmitField()
 
+class SearchForm(FlaskForm):
+    search_term = StringField("Enter search term",validators=[Required()])
+    submit = SubmitField()
+
+class SelectFoodForm(FlaskForm):
+    select = SubmitField()
+        
+
 
 
 #######################
 ###### VIEW FXNS ######
 #######################
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def home():
     form = NameForm() # User should be able to enter name after name and each one will be saved, even if it's a duplicate! Sends data with GET
     if form.validate_on_submit():
         name = form.name.data
-        newname = Name(name)
+        newname = Name(name=name)
         db.session.add(newname)
         db.session.commit()
         return redirect(url_for('all_names'))
@@ -71,14 +243,61 @@ def home():
 @app.route('/names')
 def all_names():
     names = Name.query.all()
-    return render_template('name_example.html',names=names)
+    return render_template('name_example.html', names=names)
 
 
 
+
+
+
+
+
+@app.route('/search', methods=['GET', 'POST'])
+def food_search():
+    # create a form to ask for search term
+    form = SearchForm()
+
+    # if form was not submitted yet:
+    if not form.validate_on_submit():
+        # print the form for the user
+        return render_template('search.html', form = form)
+    else: 
+        # else display the search results
+        search_term = form.search_term.data
+        return redirect( url_for('display_search_results',search_term=search_term))
+
+@app.route('/search/<search_term>')
+def display_search_results(search_term):
+    # TEMPORARY TODO: replace with actual function
+    # return search_term
+    form_select = SelectFoodForm()
+    form_search = SearchForm()
+    search_results = fetch_ndbnos_list(search_term)
+    return render_template('search_results.html', search_term = search_term, search_results=search_results, form_select = form_select, form_search=form_search)
+
+@app.route('/food_stats/<ndbno>', methods=['GET','POST'])
+def food_stats(ndbno):
+    form = SearchForm()
+    food_data = fetch_nutrition(ndbno)
+    health_idx = get_nutri_index(food_data)
+    # pprint(food_data)
+
+    return render_template('food_stats.html', health_idx = health_idx, name = food_data['name'], form = form)
+
+
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html', e = e)
 
 
 
 ## Code to run the application...
-
 # Put the code to do so here!
 # NOTE: Make sure you include the code you need to initialize the database structure when you run the application!
+if __name__ == '__main__':
+    db.create_all()
+    manager.run() # NEW: run with this: python main_app.py runserver
+    # Also provides more tools for debugging
+

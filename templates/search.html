@@ -1,0 +1,15 @@
+
+
+{% block content1 %}
+
+<h1>Search for any food</h1>
+<h4>For example you can try searching for 'red bull' and comparing it later to 'Kale' or 'Broccoli'!</h4>
+<form action="/search" method="POST">
+    {{ form.search_term.label() }}{{ form.search_term() }}
+    {{ form.submit() }}
+    {{ form.hidden_tag() }}
+</form>
+
+
+
+{% endblock %}

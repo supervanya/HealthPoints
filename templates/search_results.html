@@ -1,0 +1,26 @@
+
+
+{% block content1 %}
+
+<h1>Search for any food</h1>
+<h4>For example you can try searching for 'red bull' and comparing it later to 'Kale' or 'Broccoli'!</h4>
+<form action="/search" method="POST">
+    {{ form_search.search_term.label() }}{{ form_search.search_term() }}
+    {{ form_search.submit() }}
+    {{ form_search.hidden_tag() }}
+</form>
+
+<br>
+
+<h3>Search results</h3>
+<ul>
+{% for i in search_results %}
+    <li> <b>{{ i['name'] }}</b> <br>{{ i['group'] }} </li>
+    <form action="{{ url_for('food_stats', ndbno= i['ndbno'] )  }}" method='POST'>
+    <!-- <input type="hidden" value="{{i['name']}}" name="nbdno"> -->
+	    {{ form_select.select() }}
+	</form>
+{% endfor %}
+</ul>
+
+{% endblock %}
