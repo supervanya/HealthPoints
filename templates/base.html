@@ -2,18 +2,53 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+	<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous"> -->
 	
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="shortcut icon" type="image/ico" href="http://www.gaithersburghelp.org/wp-content/themes/gaithersburghelp/images/food-icon.png"/>
+
+
+
 	
     <style>
 	    {% block style %}
     	html,body {margin: 0; padding:0}
 	    body {background-color: #d3ffe9; font-family: avenir;}
-		main {padding: 0% 10%;margin: auto;max-width: 700px;}
-	    .header {color:white ;text-align: center; background-color:#2cbb80;padding: 25px 5px 10px; }
-	    .header h1 {margin: 0; font-weight: 600}
+		main {padding: 0% 25px;margin: auto;max-width: 700px;}
+		nav { width: 100%; background-color: #7de0a9; font-weight:500;}
+		#logo {	display: none;
+				color: #298c63;
+				line-height: 0px;
+				font-size: 53px;
+				position: absolute;
+				top: 60px;
+				left: 59.1px;}
+
+		.header {color:white ;text-align: center; background-color:#2cbb80;padding: 25px 50px 25px 50px; }
+		.header h1 {margin: 0; font-weight: 100}
+		.nav-pills>li>a { color: green; }
+		.nav-pills>li>a:hover {background-color:#d3fee8}
+		.nav-pills>li.active>a{ background-color: #2cbb80;}
+		.nav-pills>li.active>a:hover {background-color: #31ce8d	}
+		.nav-pills>li.active>a:focus {background-color: #2cbb80}
+		ul#nav_bar a {border-radius: 0;}
+
+	    h2 {font-weight:100;}
+
 	    #score {background-color: #2cbb80; color: white; text-align: center; border-radius: 5px; display: inline; padding: 10px 20px; margin: 10px;}
+
+		@media screen and (min-width:600px) {  
+			#nav_bar {display: flex;}  
+			ul#nav_bar li {
+				margin-top: 0;			
+				}
+			#logo {display: inline;}
+			
+			}
+
+		input.select-bottons:hover {background-color: #b0ffd1}
+
 	    {% endblock %}
     </style>
 
@@ -23,26 +58,38 @@
 	    Health Index
 	    {% endblock %}
 	</title>
-
 </head>
 
+<body>	
+	<header>
+		<a href="{{url_for('home')}}"><i id="logo" class="fas fa-apple-alt"></i></a>
+		<div class="header"><h1> <strong><font color="#298c63">{% if session.get('name') %} {{session['name']}}! <br> {% else %}Stranger! <br>{% endif %}</font> </strong>Welcome to HP+</h1> </div>
+	</header>
+	<nav>
+		{% set navigation_bar = [ 
+								['Home','home'],
+								['Names','all_names'],
+								['Search food','food_search'] 
+																]  %}
+		{% set active_page = active_page|default('home') -%}
 
+		<ul id="nav_bar" class="nav nav-pills nav-stacked">
+			{% for name, route in navigation_bar %}
+			    <li{% if route == active_page %} class="active"{% endif%}>
+			    	<a href="{{ url_for(route) }}">{{ name }}</a>
+			    </li>
+			{% endfor %}
 
-<body>
- 	
-<div class="header"><h1> <font color="#298c63">{% if session.get('name') %} {{session['name']}}!{% else %}Stranger{% endif %}</font> Welcome to Health Index 0.8   <p style="color: #298c63; line-height: 0px;" class="fas fa-apple-alt"><p> </h1> </div>
-
+<!-- 
+		    <li><a href="{{ url_for('home')}}">Home</a></li>
+		    <li><a href="{{ url_for('all_names')}}">Names</a></li>
+		    <li><a href="{{ url_for('food_search')}}">Search food</a></li> -->
+		</ul>
+	</nav>
 	<main>
 		{% block content %}
 		
 		{% endblock %}
-
-		<p>------------</p>
-		<h3>Navigation</h3>
-		<ul>
-		    <li><a href="{{ url_for('home')}}">Home</a></li>
-		    <li><a href="{{ url_for('all_names')}}">Names</a></li>
-		    <li><a href="{{ url_for('food_search')}}">Search food</a></li>
-		</ul>
 	</main>
+	<footer></footer>
 </body>

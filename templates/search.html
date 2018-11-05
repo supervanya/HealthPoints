@@ -1,8 +1,11 @@
 
 {% extends "base.html" %}
+{% set active_page = "food_search" %}
+
+{% block title %} 
+	Food Search 
+{% endblock %}
 
 {% block content %}
-
 	{% include 'searchbar_jinja.html' %}
-
 {% endblock %}

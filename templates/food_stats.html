@@ -1,15 +1,17 @@
 
 {% extends "base.html" %}
+{% set active_page = "food_search" %}
 
 
 {% block content %}
 
-{% include 'searchbar_jinja.html' %}
+	{% include 'searchbar_jinja.html' %}
 
-<br>
-<p style="text-align: center;">Health Index for: <b>{{ name }}</b></p>
-<div style="text-align: center;">
-	<h1 id="score" style="{{ bgcolor }}" >{{ "{0:.0f}".format(health_idx) }}</h1>
-</div>
+	<p style="text-align: center; padding: 25px 0">Health Index for: <b>{{ name }}</b></p>
+	<div style="text-align: center;">
+		<h1 id="score" style="{{ bgcolor }}" >{{ "{0:.0f}".format(health_idx) }}</h1><br><br>
+		<a href="{{back_link}}" class="btn btn-default">go back</a>
+
+	</div>
 
 {% endblock %}

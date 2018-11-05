@@ -1,21 +1,31 @@
 
 {% extends "base.html" %}
+{% set active_page = "food_search" %}
 
 {% block content %}
 
-{% include 'searchbar_jinja.html' %}
+	{% include 'searchbar_jinja.html' %}
 
-	<br>
-
-	<h3>Search results</h3>
-	<ul>
-	{% for i in search_results %}
-	    <li> <b>{{ i['name'] }}</b> <br>{{ i['group'] }} </li>
-	    <form action="{{ url_for('food_stats', ndbno= i['ndbno'] )  }}" method='POST'>
-	    <!-- <input type="hidden" value="{{i['name']}}" name="nbdno"> -->
-		    {{ form_select.select() }}
-		</form>
-	{% endfor %}
-	</ul>
+	{% if search_results %}
+		<br><h3>Search results</h3>
+		<ul style="list-style-type:none; padding: 0">
+		{% for i in search_results %}
+		    <li style="padding: 5px 0 0 0;">
+		    <form action="{{ url_for('food_stats', ndbno= i['ndbno'] )  }}" method='POST'>
+		    <!-- <input type="hidden" value="{{i['name']}}" name="nbdno"> -->
+			    {{ form_select.select(value = i['name'],class='btn-block select-bottons', style="border-radius:10px" )}} 
+			</form></li>
+		{% endfor %}
+		</ul>
+	{% else %}
+		<br><h4>There was nothing found! Sadly ☹️</h4>
+	{% endif %}
 
 {% endblock %}
+
+{# this could be used to print them ordinary with just submit buttons
+<!-- <li> <b>{{ i['name'] }}</b> {{ i['group'] }} 
+	    <form action="{{ url_for('food_stats', ndbno= i['ndbno'] )  }}" method='POST'>
+		    {{ form_select.select(value = i['name']) }} {{ i['group'] }}
+		</form></li> -->
+ #}

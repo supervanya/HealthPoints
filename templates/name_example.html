@@ -1,8 +1,10 @@
 
 {% extends "base.html" %}
+{% set active_page = "all_names" %}
+
 
 {% block content %}
-<h1>Names Visited</h1>
+<h2>Names Visited</h2>
 
 {% for n in names %}
     <p>{{ n }}</p>

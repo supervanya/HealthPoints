@@ -8,11 +8,12 @@ import os
 from flask import Flask, render_template, session, redirect, url_for, flash, request
 from flask_script import Manager, Shell
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField # Note that you may need to import more here! Check out examples that do what you want to figure out what.
-from wtforms.validators import Required # Here, too
+from wtforms import StringField, SubmitField, SelectField # Note that you may need to import more here! Check out examples that do what you want to figure out what.
+from wtforms.validators import Required,NumberRange # Here, too
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, MigrateCommand
 from pprint     import pprint
+import webbrowser
 
 # my own modules
 from cache import *
@@ -49,11 +50,12 @@ DEBUG = False # this is for debuggin the nutrition data
 
 def fetch_ndbnos_list(search_term, offset=0):
     base_url = "https://api.nal.usda.gov/ndb/search/"
+    
     p = {
         "format":"json",
         "q":search_term,
         "sort":"r",
-        "max":11,           # return first 11 results
+        "max":session['results_num'],           # return first n results
                             # lets paging possible
 
         "offset":offset,    # this will return starting at a certain number, 
@@ -191,6 +193,10 @@ def get_nutri_index(data):
 
     # returning the health index in percent
     return hlth_idx * 100
+def redirect_url(default='index'):
+    return request.args.get('next') or \
+           request.referrer or \
+           url_for(default)
 
 ##################
 ##### MODELS #####
@@ -210,16 +216,27 @@ class Name(db.Model):
 ###### FORMS ######
 ###################
 
+def num_checker(min = 1):
+    error_message = "Should be a number!"
+
+    def _num_checker(form,field):
+        if num < min:
+            raise ValidationError(error_message)
+    return _word_count_check
+
+
 class NameForm(FlaskForm):
-    name = StringField("Please enter your name.",validators=[Required()])
+    name = StringField("Please enter your name  >",validators=[Required()])
     submit = SubmitField()
 
 class SearchForm(FlaskForm):
     search_term = StringField("Enter search term",validators=[Required()])
+    myChoices   = [('1','1'),('5','5'),('10','10'),('20','20'),('30','30'),('50','50'),('100','100'),('1000','1000')] 
+    results_num = SelectField("Result number", choices = myChoices, default=10)
     submit = SubmitField()
 
 class SelectFoodForm(FlaskForm):
-    select = SubmitField()
+    select = SubmitField('Calculate index')
         
 
 
@@ -227,6 +244,12 @@ class SelectFoodForm(FlaskForm):
 #######################
 ###### VIEW FXNS ######
 #######################
+
+@app.context_processor
+def inject_search_form():
+    search_form = SearchForm()
+    return dict(search_form=search_form)
+
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -258,31 +281,33 @@ def food_search():
     search_form = SearchForm()
 
     # if form was not submitted yet:
-    if not search_form.validate_on_submit():
+    if request.args.get("search_term") == None:
         # print the form for the user
         return render_template('search.html', search_form=search_form)
-    else: 
-        # else display the search results
-        search_term = search_form.search_term.data
-        return redirect( url_for('display_search_results',search_term=search_term))
+    else:
+        # this is the form to be used when selecting which result to calculate
+        form_select = SelectFoodForm()
 
-@app.route('/search/<search_term>')
-def display_search_results(search_term):
-    form_select = SelectFoodForm()
-    search_form = SearchForm()
-    search_results = fetch_ndbnos_list(search_term)
-    return render_template('search_results.html', search_term = search_term, search_results=search_results, form_select = form_select, search_form=search_form)
+        # recording the GET parammeters
+        search_term = request.args.get("search_term")
+        results_num = int(request.args.get("results_num"))
+
+        # setting the number of results used by the user
+        session['results_num'] = results_num
+        search_results = fetch_ndbnos_list(search_term)
+
+        return render_template('search_results.html', search_term = search_term, search_results=search_results, form_select=form_select)
+        # ,search_term=search_term, num=session['results_num'] 
+
 
 @app.route('/food_stats/<ndbno>', methods=['GET','POST'])
 def food_stats(ndbno):
-    print(session['name'])
-    search_form = SearchForm()
     food_data = fetch_nutrition(ndbno)
     health_idx = get_nutri_index(food_data)
     if health_idx < 0:
         bgcolor = "background-color: #e01717;"
     else: bgcolor = "background-color: #2cbb80;"
-    return render_template('food_stats.html', health_idx = health_idx, name = food_data['name'], search_form = search_form, bgcolor=bgcolor)
+    return render_template('food_stats.html', health_idx = health_idx, name = food_data['name'], bgcolor=bgcolor, back_link=redirect_url())
 
 
 
@@ -295,8 +320,10 @@ def page_not_found(e):
 ## Code to run the application...
 # Put the code to do so here!
 # NOTE: Make sure you include the code you need to initialize the database structure when you run the application!
+webbrowser.open('http://localhost:5000/')
 if __name__ == '__main__':
     db.create_all()
     manager.run() # NEW: run with this: python main_app.py runserver
     # Also provides more tools for debugging
+
 
