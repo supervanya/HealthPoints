@@ -1,0 +1,8 @@
+<h1>Search for any food</h1>
+<p>For example you can try searching for junk foods 🍪🍔🥤 like 'red bull' and comparing it to some super-foods like 🥗 'Kale' or 🥦 'Broccoli'!</p>
+<form action="/search" method="POST">
+    {{ search_form.search_term.label() }}{{ search_form.search_term() }}
+    {{ search_form.submit() }}
+    {{ search_form.hidden_tag() }}
+</form>
+

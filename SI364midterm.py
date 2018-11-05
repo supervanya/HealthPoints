@@ -142,7 +142,6 @@ def get_nutri_index(data):
     # MODIFIES: nothing
 
     # extracting necessary data for calculating HLTH_IDX
-    pprint(data)
     name    = data['name']
     kcal    = data[208]['value'] if data[208]['value'] else 1
     vit_c   = data[401]['value']
@@ -234,11 +233,12 @@ def home():
     form = NameForm() # User should be able to enter name after name and each one will be saved, even if it's a duplicate! Sends data with GET
     if form.validate_on_submit():
         name = form.name.data
+        session['name'] = name
         newname = Name(name=name)
         db.session.add(newname)
         db.session.commit()
         return redirect(url_for('all_names'))
-    return render_template('base.html',form=form)
+    return render_template('home.html',form=form)
 
 @app.route('/names')
 def all_names():
@@ -255,34 +255,35 @@ def all_names():
 @app.route('/search', methods=['GET', 'POST'])
 def food_search():
     # create a form to ask for search term
-    form = SearchForm()
+    search_form = SearchForm()
 
     # if form was not submitted yet:
-    if not form.validate_on_submit():
+    if not search_form.validate_on_submit():
         # print the form for the user
-        return render_template('search.html', form = form)
+        return render_template('search.html', search_form=search_form)
     else: 
         # else display the search results
-        search_term = form.search_term.data
+        search_term = search_form.search_term.data
         return redirect( url_for('display_search_results',search_term=search_term))
 
 @app.route('/search/<search_term>')
 def display_search_results(search_term):
-    # TEMPORARY TODO: replace with actual function
-    # return search_term
     form_select = SelectFoodForm()
-    form_search = SearchForm()
+    search_form = SearchForm()
     search_results = fetch_ndbnos_list(search_term)
-    return render_template('search_results.html', search_term = search_term, search_results=search_results, form_select = form_select, form_search=form_search)
+    return render_template('search_results.html', search_term = search_term, search_results=search_results, form_select = form_select, search_form=search_form)
 
 @app.route('/food_stats/<ndbno>', methods=['GET','POST'])
 def food_stats(ndbno):
-    form = SearchForm()
+    print(session['name'])
+    search_form = SearchForm()
     food_data = fetch_nutrition(ndbno)
     health_idx = get_nutri_index(food_data)
-    # pprint(food_data)
+    if health_idx < 0:
+        bgcolor = "background-color: #e01717;"
+    else: bgcolor = "background-color: #2cbb80;"
+    return render_template('food_stats.html', health_idx = health_idx, name = food_data['name'], search_form = search_form, bgcolor=bgcolor)
 
-    return render_template('food_stats.html', health_idx = health_idx, name = food_data['name'], form = form)
 
 
 
@@ -290,8 +291,6 @@ def food_stats(ndbno):
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html', e = e)
-
-
 
 ## Code to run the application...
 # Put the code to do so here!
