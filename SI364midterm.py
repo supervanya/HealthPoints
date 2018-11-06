@@ -49,6 +49,8 @@ DATAGOV_APIKEY = 'DEMO_KEY'
 DEBUG = False # this is for debuggin the nutrition data
 
 def fetch_ndbnos_list(search_term, offset=0):
+    # documentation is here:
+    # https://ndb.nal.usda.gov/ndb/doc/apilist/API-SEARCH.md
     base_url = "https://api.nal.usda.gov/ndb/search/"
     
     p = {
@@ -60,7 +62,7 @@ def fetch_ndbnos_list(search_term, offset=0):
 
         "offset":offset,    # this will return starting at a certain number, 
                             # helpful if user wants to see more
-        "ds":"Standard Reference", # or use 'Branded Food Products'
+        "ds":"", # 'Standard Reference' or 'Branded Food Products' or ''
         "api_key":DATAGOV_APIKEY
     }
 
@@ -193,7 +195,7 @@ def get_nutri_index(data):
 
     # returning the health index in percent
     return hlth_idx * 100
-def redirect_url(default='index'):
+def redirect_url(default='home'):
     return request.args.get('next') or \
            request.referrer or \
            url_for(default)
