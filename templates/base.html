@@ -17,13 +17,13 @@
 	    body {background-color: #d3ffe9; font-family: avenir;}
 		main {padding: 0% 25px;margin: auto;max-width: 700px;}
 		nav { width: 100%; background-color: #7de0a9; font-weight:500;}
-		#logo {	display: none;
+		#logo {	
 				color: #298c63;
 				line-height: 0px;
-				font-size: 53px;
+				font-size: 30px;
 				position: absolute;
-				top: 60px;
-				left: 59.1px;}
+				top: 30px;
+				left: 20px;}
 
 		.header {color:white ;text-align: center; background-color:#2cbb80;padding: 25px 50px 25px 50px; }
 		.header h1 {margin: 0; font-weight: 100}
@@ -32,18 +32,23 @@
 		.nav-pills>li.active>a{ background-color: #2cbb80;}
 		.nav-pills>li.active>a:hover {background-color: #31ce8d	}
 		.nav-pills>li.active>a:focus {background-color: #2cbb80}
+
+		.btn-inline {
+			display: inline-block;
+		}
+
 		ul#nav_bar a {border-radius: 0;}
 
 	    h2 {font-weight:100;}
 
 	    #score {background-color: #2cbb80; color: white; text-align: center; border-radius: 5px; display: inline; padding: 10px 20px; margin: 10px;}
 
-		@media screen and (min-width:600px) {  
+		@media screen and (min-width:500px) {  
 			#nav_bar {display: flex;}  
 			ul#nav_bar li {
 				margin-top: 0;			
 				}
-			#logo {display: inline;}
+			#logo {display: inline;top: 60px;left: 60px;font-size: 53px;}
 			
 			}
 
@@ -67,10 +72,11 @@
 	</header>
 	<nav>
 		{% set navigation_bar = [ 
-								['Home','home'],
-								['Names','all_names'],
-								['Search food','food_search'] 
-																]  %}
+									['Home','home'],
+									['Names','all_names'],
+									['Search','food_search'], 
+									['Favorites','favorites'], 
+																	]  %}
 		{% set active_page = active_page|default('home') -%}
 
 		<ul id="nav_bar" class="nav nav-pills nav-stacked">

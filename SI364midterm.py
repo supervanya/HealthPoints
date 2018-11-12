@@ -73,7 +73,8 @@ def fetch_ndbnos_list(search_term, offset=0):
     try: 
         ndbnos_list = json_data['list']['item']
         return ndbnos_list
-    except: 
+    except:
+        print(json_data)
         return None
 def fetch_nutrition(ndbno):
     '''
@@ -111,6 +112,12 @@ def fetch_nutrition(ndbno):
     }
     
     json_data = cached_reqest(base_url,params = p)
+
+    try:
+        error_test = json_data['foods']
+    except:
+        return (0,'api_error')
+
 
     # blank dictonary to hold values of interest
     data = maps.blank_nutri_map
@@ -200,17 +207,47 @@ def redirect_url(default='home'):
            request.referrer or \
            url_for(default)
 
+def get_or_create_food(ndbno,user_id):
+    newfood = None
+    # newfood = Food.query.filter_by(name=name).first()
+    # this would have to change with many2many relationship
+    if not newfood:
+        data = fetch_nutrition(ndbno)
+        idx  = get_nutri_index(data)
+        newfood = Food(ndbno=ndbno, name=data['name'], health_index=idx,user_id=user_id)
+        db.session.add(newfood)
+        db.session.commit()
+    return newfood
+
+def get_or_create_user(name):
+    newuser = Name.query.filter_by(name=name).first()
+    if not newuser:
+        newuser = Name(name=name)
+        db.session.add(newuser)
+        db.session.commit()
+    return newuser
+
+
 ##################
 ##### MODELS #####
 ##################
-
 class Name(db.Model):
     __tablename__ = "names"
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(64))
+    foods = db.relationship('Food',backref='Name')
 
     def __repr__(self):
         return "{} (ID: {})".format(self.name, self.id)
+
+
+class Food(db.Model):
+    __tablename__ = "foods"
+    id = db.Column(db.Integer,primary_key=True)
+    ndbno = db.Column(db.Integer, unique=True)
+    name  = db.Column(db.String(64))
+    health_index = db.Column(db.Float)
+    user_id = db.Column(db.Integer, db.ForeignKey("names.id"))
 
 
 
@@ -239,6 +276,7 @@ class SearchForm(FlaskForm):
 
 class SelectFoodForm(FlaskForm):
     select = SubmitField('Calculate index')
+    favorite = SubmitField('★')
         
 
 
@@ -259,9 +297,14 @@ def home():
     if form.validate_on_submit():
         name = form.name.data
         session['name'] = name
-        newname = Name(name=name)
-        db.session.add(newname)
-        db.session.commit()
+
+        # checking if the user exists already in the DB
+        user_name = Name.query.filter_by(name=name).first()
+        if not user_name:
+            newname = Name(name=name)
+            db.session.add(newname)
+            db.session.commit()
+
         return redirect(url_for('all_names'))
     return render_template('home.html',form=form)
 
@@ -274,7 +317,7 @@ def all_names():
 
 
 
-
+# {{back_link}}
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -290,6 +333,7 @@ def food_search():
         # this is the form to be used when selecting which result to calculate
         form_select = SelectFoodForm()
 
+
         # recording the GET parammeters
         search_term = request.args.get("search_term")
         results_num = int(request.args.get("results_num"))
@@ -297,6 +341,7 @@ def food_search():
         # setting the number of results used by the user
         session['results_num'] = results_num
         search_results = fetch_ndbnos_list(search_term)
+        print(search_results, search_term)
 
         return render_template('search_results.html', search_term = search_term, search_results=search_results, form_select=form_select)
         # ,search_term=search_term, num=session['results_num'] 
@@ -309,8 +354,27 @@ def food_stats(ndbno):
     if health_idx < 0:
         bgcolor = "background-color: #e01717;"
     else: bgcolor = "background-color: #2cbb80;"
+    print(food_data)
     return render_template('food_stats.html', health_idx = health_idx, name = food_data['name'], bgcolor=bgcolor, back_link=redirect_url())
 
+
+
+
+
+@app.route('/add_favorite/<ndbno>', methods=['GET','POST'])
+def add_favorite(ndbno):
+    user = get_or_create_user(name = session['name'])
+    food = get_or_create_food(ndbno = ndbno, user_id=user.id)
+    user.foods.append(food)
+    return redirect (redirect_url())
+
+
+@app.route('/favorites/', methods=['GET','POST'])
+def favorites():
+    form_select = SelectFoodForm()
+    user = get_or_create_user(name = session['name'])
+    foods = user.foods
+    return render_template('favorites.html',foods=foods, form_select = form_select)
 
 
 
@@ -322,8 +386,8 @@ def page_not_found(e):
 ## Code to run the application...
 # Put the code to do so here!
 # NOTE: Make sure you include the code you need to initialize the database structure when you run the application!
-webbrowser.open('http://localhost:5000/')
 if __name__ == '__main__':
+    webbrowser.open('http://localhost:5000/')
     db.create_all()
     manager.run() # NEW: run with this: python main_app.py runserver
     # Also provides more tools for debugging

@@ -1,0 +1,34 @@
+
+{% extends "base.html" %}
+{% set active_page = "favorites" %}
+
+{% block content %}
+
+	{% if foods %}
+		<br><h3>Your favorites</h3>
+		<ul style="list-style-type:none; padding: 0">
+		{% for f in foods %}
+			<div class="button-container">
+			    <li style="padding: 5px 0 0 0;">
+			    <form  action="{{ url_for('food_stats', ndbno= f['ndbno'] )  }}" method='POST'>
+				    {{ form_select.select(value = f['name'],class='btn-block select-bottons', style="border-radius:10px; width: 90%; display: inline-block;" )}}
+				    HP: {{  "{0:.0f}".format( f['health_index'] )   }}
+				</form>
+			  </li>
+			</div>
+		{% endfor %}
+		</ul>
+	{% else %}
+		<br><h4>You haven't added any food to your favorites! ☹️</h4>
+	{% endif %}
+	
+{% endblock %}
+
+{# this could be used to print them ordinary with just submit buttons
+<!-- <li> <b>{{ i['name'] }}</b> {{ i['group'] }} 
+	    <form action="{{ url_for('food_stats', ndbno= i['ndbno'] )  }}" method='POST'>
+		    {{ form_select.select(value = i['name']) }} {{ i['group'] }}
+		</form></li> -->
+ #}
+
+ 

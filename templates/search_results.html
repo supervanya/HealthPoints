@@ -10,11 +10,15 @@
 		<br><h3>Search results</h3>
 		<ul style="list-style-type:none; padding: 0">
 		{% for i in search_results %}
-		    <li style="padding: 5px 0 0 0;">
-		    <form action="{{ url_for('food_stats', ndbno= i['ndbno'] )  }}" method='POST'>
-		    <!-- <input type="hidden" value="{{i['name']}}" name="nbdno"> -->
-			    {{ form_select.select(value = i['name'],class='btn-block select-bottons', style="border-radius:10px" )}} 
-			</form></li>
+			<div class="button-container">
+			    <li style="padding: 5px 0 0 0;">
+			    <form  action="{{ url_for('food_stats', ndbno= i['ndbno'] )  }}" method='POST'>
+			    <!-- <input type="hidden" value="{{i['name']}}" name="nbdno"> -->
+				    {{ form_select.select(value = i['name'],class='btn-block select-bottons', style="border-radius:10px; width: 96%; display: inline-block;" )}} 
+				    <a href="{{ url_for('add_favorite',ndbno= i['ndbno']) }}">★</a>
+				</form>
+			  </li>
+			</div>
 		{% endfor %}
 		</ul>
 	{% else %}
@@ -29,3 +33,5 @@
 		    {{ form_select.select(value = i['name']) }} {{ i['group'] }}
 		</form></li> -->
  #}
+
+ 

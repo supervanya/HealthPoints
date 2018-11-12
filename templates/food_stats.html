@@ -4,9 +4,10 @@
 
 
 {% block content %}
-
+	
+	{#  removed it for now, but can be included again
 	{% include 'searchbar_jinja.html' %}
-
+	#}
 	<p style="text-align: center; padding: 25px 0">Health Index for: <b>{{ name }}</b></p>
 	<div style="text-align: center;">
 		<h1 id="score" style="{{ bgcolor }}" >{{ "{0:.0f}".format(health_idx) }}</h1><br><br>
