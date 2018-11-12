@@ -32,14 +32,14 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Set up Flask debug stuff
 manager = Manager(app)
-db = SQLAlchemy(app) # For database use
+
+## Statements for db setup (and manager setup if using Manager)
+db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
 manager.add_command('db', MigrateCommand)
 
 
-## Statements for db setup (and manager setup if using Manager)
-db = SQLAlchemy(app)
 
 
 ######################################
@@ -244,8 +244,8 @@ class Name(db.Model):
 class Food(db.Model):
     __tablename__ = "foods"
     id = db.Column(db.Integer,primary_key=True)
-    ndbno = db.Column(db.Integer, unique=True)
-    name  = db.Column(db.String(64))
+    ndbno = db.Column(db.Integer)
+    name  = db.Column(db.String(256))
     health_index = db.Column(db.Float)
     user_id = db.Column(db.Integer, db.ForeignKey("names.id"))
 
@@ -311,14 +311,7 @@ def home():
 @app.route('/names')
 def all_names():
     names = Name.query.all()
-    return render_template('name_example.html', names=names)
-
-
-
-
-
-# {{back_link}}
-
+    return render_template('names.html', names=names)
 
 @app.route('/search', methods=['GET', 'POST'])
 def food_search():
@@ -377,8 +370,7 @@ def favorites():
     return render_template('favorites.html',foods=foods, form_select = form_select)
 
 
-
-
+# Handilng Error routes
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html', e = e)
