@@ -30,6 +30,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://localhost/midterm_test"
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+
 # Set up Flask debug stuff
 manager = Manager(app)
 
@@ -45,7 +46,7 @@ manager.add_command('db', MigrateCommand)
 ######################################
 ######## HELPER FXNS (If any) ########
 ######################################
-DATAGOV_APIKEY = 'DEMO_KEY'
+DATAGOV_APIKEY = 'S2e5qqeAvtr57Da33TQLS1y0CoPxS6larxQVpncI'
 DEBUG = False # this is for debuggin the nutrition data
 
 def fetch_ndbnos_list(search_term, offset=0):
@@ -98,11 +99,12 @@ def fetch_nutrition(ndbno):
     # URL: https://ndb.nal.usda.gov/ndb/doc/apilist/API-FOOD-REPORTV2.md
     # PARAMETERS:
     #   api_key   y   n/a         Must be a data.gov registered API key
-    #   ndbno     y   n/a         A list of up to 50 NDB numbers
+    #   ndbno     y   n/a         A list of up to 50 NDB numbers {!!!!!!!}
     #   type      n   b(basic)    Report type: [b]asic or [f]ull or [s]tats
     #   format1   n   JSON        Report format: xml or json
 
     # TODO, switch 'type' to f if needed full report
+    # to get it from terminal use: curl -H "Content-Type:application/json" -d '{"ndbno":["01009","45202763","35193"],"type":"b"}' DEMO_KEY@api.nal.usda.gov/ndb/V2/reports
     base_url = "https://api.nal.usda.gov/ndb/V2/reports"
     p = {
         "format":"json",
