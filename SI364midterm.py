@@ -26,9 +26,11 @@ app.debug = True
 
 ## All app.config values
 app.config['SECRET_KEY'] = 'hardtoguessstringfromsi364'
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://localhost/midterm_test"
+# for HEROKU my uri is: 'postgresql-tetrahedral-10876'
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL') or "postgresql://localhost/midterm_test" 
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['HEROKU_ON'] = os.environ.get('HEROKU')
 
 
 # Set up Flask debug stuff
