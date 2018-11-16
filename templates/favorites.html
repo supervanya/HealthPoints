@@ -11,7 +11,7 @@
 			<div class="button-container">
 			    <li style="padding: 5px 0 0 0;">
 			    <form  action="{{ url_for('food_stats', ndbno= f['ndbno'] )  }}" method='POST'>
-				    {{ form_select.select(value = f['name'],class='btn-block select-bottons', style="border-radius:10px; width: 90%; display: inline-block;" )}}
+				    {{ form_select.select(value = f['name'],class='btn-block select-bottons', style="border-radius:10px; width: 85%; display: inline-block;" )}}
 				    HP: {{  "{0:.0f}".format( f['health_index'] )   }}
 				</form>
 			  </li>

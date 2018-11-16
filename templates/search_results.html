@@ -14,7 +14,7 @@
 			    <li style="padding: 5px 0 0 0;">
 			    <form  action="{{ url_for('food_stats', ndbno= i['ndbno'] )  }}" method='POST'>
 			    <!-- <input type="hidden" value="{{i['name']}}" name="nbdno"> -->
-				    {{ form_select.select(value = i['name'],class='btn-block select-bottons', style="border-radius:10px; width: 96%; display: inline-block;" )}} 
+				    {{ form_select.select(value = i['name'],class='btn-block select-bottons', style="border-radius:10px; width: 90%; display: inline-block;" )}} 
 				    <a href="{{ url_for('add_favorite',ndbno= i['ndbno']) }}">★</a>
 				</form>
 			  </li>
