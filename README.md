@@ -1,5 +1,7 @@
 Midterm Project for the SI364 class (web app)
 
+UPDATE: The app can be now run in browser, go to www.eatornot.us
+
 # FOOD HEALTH ESTIMATOR
   This is the midterm project for class:
   SI364  class (Interractive App Building)
