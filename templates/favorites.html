@@ -19,7 +19,7 @@
 		{% endfor %}
 		</ul>
 	{% else %}
-		<br><h4>You haven't added any food to your favorites! ☹️</h4>
+		<br><h4>You haven't added any food to your favorites, {{ session['name'] }}! ☹️</h4>
 	{% endif %}
 	
 {% endblock %}

@@ -4,9 +4,14 @@
 
 
 {% block content %}
-<h2>Registered Users</h2>
 
-{% for n in names %}
-    <p>{{ n }}</p>
-{% endfor %}
+{% if names %}
+	<h2>Registered Users</h2>
+	{% for n in names %}
+	    <p>{{ n }}</p>
+	{% endfor %}
+{% else %}
+	<br><h4>You should first log in Stranger! Click <a href="{{ url_for('home') }}">here</a></h4>
+{% endif %}
+
 {% endblock %}

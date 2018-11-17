@@ -11,7 +11,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField # Note that you may need to import more here! Check out examples that do what you want to figure out what.
 from wtforms.validators import Required,NumberRange # Here, too
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate, MigrateCommand
+# from flask_migrate import Migrate, MigrateCommand
 from pprint     import pprint
 import webbrowser
 
@@ -39,8 +39,8 @@ manager = Manager(app)
 ## Statements for db setup (and manager setup if using Manager)
 db = SQLAlchemy(app)
 
-migrate = Migrate(app, db)
-manager.add_command('db', MigrateCommand)
+# migrate = Migrate(app, db)
+# manager.add_command('db', MigrateCommand)
 
 
 
@@ -143,12 +143,12 @@ def fetch_nutrition(ndbno):
             # "measures": nutrient['measures']
         }
 
-
     # for debugging purposes
     if DEBUG == True:
       pprint(data)
 
     return data
+    
 def get_nutri_index(data):
     # DESCR:    calculates health index of a food item
     #           data can be recieved from fetch_nutrition
@@ -205,7 +205,9 @@ def get_nutri_index(data):
     hlth_idx_water  = 0
 
     # returning the health index in percent
+    print(hlth_idx)
     return hlth_idx * 100
+
 def redirect_url(default='home'):
     return request.args.get('next') or \
            request.referrer or \
@@ -338,7 +340,7 @@ def food_search():
         # setting the number of results used by the user
         session['results_num'] = results_num
         search_results = fetch_ndbnos_list(search_term)
-        print(search_results, search_term)
+        # print(search_results, search_term)
 
         return render_template('search_results.html', search_term = search_term, search_results=search_results, form_select=form_select)
         # ,search_term=search_term, num=session['results_num'] 
@@ -369,9 +371,15 @@ def add_favorite(ndbno):
 @app.route('/favorites/', methods=['GET','POST'])
 def favorites():
     form_select = SelectFoodForm()
-    user = get_or_create_user(name = session['name'])
-    foods = user.foods
-    return render_template('favorites.html',foods=foods, form_select = form_select)
+    name = session.get('name')
+
+    # if user is logged in:
+    if name:
+        user = get_or_create_user(name = name)
+        foods = user.foods
+        return render_template('favorites.html',foods=foods, form_select = form_select)
+    else:
+        return render_template('names.html', names = None)
 
 
 # Handilng Error routes
