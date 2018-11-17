@@ -25,6 +25,10 @@ Use requirements.txt to set up the virtual environment or intall missing modules
 * Run the interractive.py file in the cmd or terminal
 ```
 python3 SI364midterm.py runserver
+
+or
+
+gunicorn SI364midterm:app
 ```
 * Open http://localhost:5000/ in your browser if it didn't open with the run of the app
 
