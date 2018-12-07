@@ -49,7 +49,7 @@ db = SQLAlchemy(app)
 ######## HELPER FXNS (If any) ########
 ######################################
 DATAGOV_APIKEY = 'S2e5qqeAvtr57Da33TQLS1y0CoPxS6larxQVpncI'
-DEBUG = False # this is for debuggin the nutrition data
+DEBUG = True # this is for debuggin the nutrition data
 
 def fetch_ndbnos_list(search_term, offset=0):
     # documentation is here:
@@ -143,6 +143,8 @@ def fetch_nutrition(ndbno):
             # "measures": nutrient['measures']
         }
 
+    data['health_index'] = get_nutri_index(data)
+
     # for debugging purposes
     if DEBUG == True:
       pprint(data)
@@ -205,7 +207,16 @@ def get_nutri_index(data):
     hlth_idx_water  = 0
 
     # returning the health index in percent
-    print(hlth_idx)
+
+    if DEBUG == True:
+        print(hlth_idx)
+        print("\n "*5)
+        print("- "*20)
+        print("printing Data variable after index is calculated ")
+        print(data)
+        print("- "*20)
+        print("\n "*5)
+
     return hlth_idx * 100
 
 def redirect_url(default='home'):
@@ -353,7 +364,7 @@ def food_stats(ndbno):
     if health_idx < 0:
         bgcolor = "background-color: #e01717;"
     else: bgcolor = "background-color: #2cbb80;"
-    print(food_data)
+    # print(food_data)
     return render_template('food_stats.html', health_idx = health_idx, name = food_data['name'], bgcolor=bgcolor, back_link=redirect_url())
 
 
