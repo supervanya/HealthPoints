@@ -3,7 +3,9 @@ import requests
 import json
 
 # trurn this off to remove debugginf print statements
-DEBUG = False
+DEBUG = True
+CACHING = False
+
 
 # <----- PICKLING TO FILE ----->
 # # pickling implementation
@@ -47,10 +49,11 @@ def params_unique_combination(baseurl, params):
 
 
 def cached_reqest(baseurl, params, auth=None):
+
     unique_ident = params_unique_combination(baseurl, params)
 
     # first, look in the cache to see if we already have this data
-    if unique_ident in CACHE_DICTION:
+    if unique_ident in CACHE_DICTION and CACHING:
         
         if DEBUG == True:
             print("Getting cached data...")
