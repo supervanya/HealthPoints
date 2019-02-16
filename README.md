@@ -10,8 +10,9 @@ UPDATE: The app can be now run in browser, go to www.eatornot.us
 This software allows user to find out how healthy any food that is (as long as known to USDA).
 
 ## Long Description
-This web app lets user look up foods and get an indepth insights on how they might impact one's health. In order to simplify the rankings of the foods a normalized "Health Index" was developed. It takes into account Macro and Micro nutrients of given food product while not reflecting while taking calories out of equation. Health Index is a number that can be used to evaluate how healthy a food is relative to other foods. Water used as a baseline to be 0 health index. Anything above 0 is likely good for human body, anython above 200 could be likely called superfood. While foods below 0 
+I created a web application that lets user lookup foods and get an instant insight on how food might impact one's health. In order to simplify the rankings of the foods, I developed a measure that I called  health points. This index takes into account Macro and Micro nutrients of given food product while taking calories out of equation.
 
+Health Points can be used to evaluate how healthy a food is relative to other foods. I used water as a baseline to be 0. Foods above 0 are likely good for human body, foods above 200 could be likely called superfood, and foods below 0 are unhealthy.
 
 
 ## Getting started
