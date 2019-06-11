@@ -2,14 +2,49 @@
 {% extends "base.html" %}
 {% set active_page = "all_names" %}
 
+{% block style %}
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+tbody {
+	border-color: green;
+}
+
+td, th {
+  /*border: 1px solid #dddddd;*/
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #79e1a652;
+}
+</style>
+{% endblock %}
+
 
 {% block content %}
 
-{% if names %}
-	<h2>Registered Users</h2>
-	{% for n in names %}
-	    <p>{{ n }}</p>
+{% if users %}
+	<h3 class="center" style="margin: 30px 0; font-weight: 800">Registered Users</h3>
+	<table style="width:100%">
+		<tr>
+			<th>Username</th>
+		    <th>Id</th> 
+		    <th>Favorites</th>
+		 </tr>
+	{% for n in users %}
+		<tr>
+			<td>{{ n.username }}</td>
+		    <td>{{ n.id }}</td> 
+		    <td>{{ n.favorites|list|length }}</td>
+	    </tr>
 	{% endfor %}
+	</table>
 {% else %}
 	<br><h4>You should first log in Stranger! Click <a href="{{ url_for('home') }}">here</a></h4>
 {% endif %}

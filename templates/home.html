@@ -2,11 +2,16 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>What shall I call you?</h2>
+<h4 class="center" style="padding-top: 30px;font-size: 16px;">Enter username and password</h4>
+<p class="center">No worries if you are new, we will automatically create an account!</p>
 
-<form action="{{ url_for('home') }}" method="POST">
-    {{ form.name.label() }}{{ form.name() }}<br>
-    {{ form.submit() }}
+
+<form class="center" action="{{ url_for('home') }}" method="POST">
+    {{ form.username()   }}
+    {{ form.password()   }}
+    {{ form.submit()     }}
     {{ form.hidden_tag() }}
 </form>
+
+
 {% endblock %}

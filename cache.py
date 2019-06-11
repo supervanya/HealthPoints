@@ -4,7 +4,7 @@ import json
 
 # trurn this off to remove debugginf print statements
 DEBUG = True
-CACHING = False
+CACHING = True
 
 
 # <----- PICKLING TO FILE ----->

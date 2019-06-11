@@ -2,11 +2,12 @@
 ####### SETUP (OVERALL) #######
 ###############################
 
-## Import statements
 # Import statements
 import os
 from flask import Flask, render_template, session, redirect, url_for, flash, request
 from flask_script import Manager, Shell
+
+
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField # Note that you may need to import more here! Check out examples that do what you want to figure out what.
 from wtforms.validators import Required,NumberRange # Here, too
@@ -79,6 +80,7 @@ def fetch_ndbnos_list(search_term, offset=0):
     except:
         print(json_data)
         return None
+
 def fetch_nutrition(ndbno):
     '''
     DESCR:     gets nutrition data about given food item
@@ -168,17 +170,17 @@ def get_nutri_index(data):
 
     # for conveniece aliasing the map as d
     d = maps.RNP 
-    protein     = data[ d['Protein'               ] ]['value']
-    carbs       = data[ d['Carbs'                 ] ]['value']
-    fats        = data[ d['Fats'                  ] ]['value']
-    fiber       = data[ d['Fiber'                 ] ]['value']
-    sugars      = data[ d['Sugars'                ] ]['value']
-    cholesterol = data[ d['Cholesterol'           ] ]['value']
-    sodium      = data[ d['Sodium'                ] ]['value']
-    sat_f       = data[ d['Saturated Fat'         ] ]['value']
-    trans_f     = data[ d['Trans Fat'             ] ]['value']
-    pol_f       = data[ d['Polyunsaturated Fat'   ] ]['value']
-    mon_f       = data[ d['Monounsaturated Fat'   ] ]['value']
+    protein     = data[ d['Protein'            ] ]['value']
+    carbs       = data[ d['Carbs'              ] ]['value']
+    fats        = data[ d['Fats'               ] ]['value']
+    fiber       = data[ d['Fiber'              ] ]['value']
+    sugars      = data[ d['Sugars'             ] ]['value']
+    cholesterol = data[ d['Cholesterol'        ] ]['value']
+    sodium      = data[ d['Sodium'             ] ]['value']
+    sat_f       = data[ d['Saturated Fat'      ] ]['value']
+    trans_f     = data[ d['Trans Fat'          ] ]['value']
+    pol_f       = data[ d['Polyunsaturated Fat'] ]['value']
+    mon_f       = data[ d['Monounsaturated Fat'] ]['value']
 
 
     # GOOD STUFF
@@ -226,7 +228,7 @@ def redirect_url(default='home'):
 
 def get_or_create_food(ndbno,user_id):
     newfood = None
-    # newfood = Food.query.filter_by(name=name).first()
+    newfood = Food.query.filter_by(name=name).first()
     # this would have to change with many2many relationship
     if not newfood:
         data = fetch_nutrition(ndbno)
