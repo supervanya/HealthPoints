@@ -23,6 +23,7 @@ Use requirements.txt to set up the virtual environment or intall missing modules
 
 ### Running
 * Activate the virtual environment with packages requred
+* Start the postgresql `pg_ctl -D /usr/local/var/postgres start`
 * Run the interractive.py file in the cmd or terminal
 ```
 python3 SI364midterm.py runserver
